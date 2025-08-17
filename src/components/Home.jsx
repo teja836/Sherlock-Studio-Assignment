@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IoPersonSharp } from "react-icons/io5";
 import { BsCoin } from "react-icons/bs";
 import { FaPlay } from "react-icons/fa";
@@ -7,11 +7,11 @@ import { FaGift } from "react-icons/fa";
 import BannerAd from "./BannerAd";
 
 const Home = () => {
+  const [showWinPopup, setShowWinPopup] = useState(false);
+  const [lastReward, setLastReward] = useState(0);
   const [coins, setCoins] = useState(0);
   const [showRewardedAd, setShowRewardedAd] = useState(false);
   const [showWatchPopup, setShowWatchPopup] = useState(false);
-  const [showAnimatedPopup, setShowAnimatedPopup] = useState(false);
-  const [popupReward, setPopupReward] = useState(50);
   const [currentAd, setCurrentAd] = useState(null);
 
   const adVideos = [
@@ -25,20 +25,7 @@ const Home = () => {
     setShowWatchPopup(true);
   };
 
-  // Animated popup logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPopupReward(Math.random() > 0.5 ? 50 : 70);
-      setShowAnimatedPopup(true);
-      setTimeout(() => setShowAnimatedPopup(false), 2200);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleAnimatedPopupClick = () => {
-    setCoins(c => c + popupReward);
-    setShowAnimatedPopup(false);
-  };
+  // ...existing code...
 
   const handleWatchAd = () => {
     setShowWatchPopup(false);
@@ -102,25 +89,7 @@ const Home = () => {
         </div>
       </div>
       {/* Buttons - Vertically Centered on Mobile */}
-      {/* Animated Ad Popup Bottom Right */}
-      {showAnimatedPopup && (
-        <div className="fixed right-4 bottom-4 z-50 animate-slide-in-up">
-          <div className="bg-gradient-to-br from-yellow-300 via-yellow-100 to-yellow-400 border-2 border-yellow-400 rounded-xl shadow-xl px-5 py-4 flex items-center gap-3 text-yellow-900 font-semibold text-base cursor-pointer hover:scale-105 transition-all duration-300" onClick={handleAnimatedPopupClick}>
-            <BsCoin className="text-yellow-500 text-2xl animate-bounce" />
-            <span>Click to watch this ad to get <span className="font-bold text-yellow-700">{popupReward}+ coins</span></span>
-          </div>
-          <style>{`
-            @keyframes slide-in-up {
-              0% { opacity: 0; transform: translateY(40px) scale(0.95); }
-              60% { opacity: 1; transform: translateY(-8px) scale(1.05); }
-              100% { opacity: 1; transform: translateY(0) scale(1); }
-            }
-            .animate-slide-in-up {
-              animation: slide-in-up 0.7s cubic-bezier(.7,-0.5,.3,1.5);
-            }
-          `}</style>
-        </div>
-      )}
+  {/* ...existing code... */}
       <div className="flex flex-col gap-4 mb-4 items-center w-full px-4 max-w-xs mx-auto justify-center self-center flex-1 z-10">
         <button
           className="max-w-[140px] w-full px-3 py-2 rounded-md bg-gradient-to-r from-yellow-400 via-sky-400 to-blue-500 text-white font-semibold text-base shadow-md hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center animate-button-pop"
@@ -155,6 +124,9 @@ const Home = () => {
                 <video src={currentAd?.src} controls autoPlay className="w-full h-full rounded bg-black" onEnded={() => {
                   setShowRewardedAd(false);
                   setCoins(c => c + (currentAd?.reward || 0));
+                  setLastReward(currentAd?.reward || 0);
+                  setShowWinPopup(true);
+                  setTimeout(() => setShowWinPopup(false), 2200);
                 }}>
                   <source src={currentAd?.src} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -163,6 +135,12 @@ const Home = () => {
               <span className="text-base text-gray-700">Watching ad...</span>
               <span className="text-green-700 font-bold mt-2">Reward: {currentAd?.reward || 0} coins</span>
             </div>
+          </div>
+        )}
+
+        {showWinPopup && (
+          <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-green-300 text-green-900 px-8 py-4 rounded-xl shadow-xl z-[999] animate-bounce">
+            <span className="font-bold text-lg">You won {lastReward} coins!</span>
           </div>
         )}
       </div>
