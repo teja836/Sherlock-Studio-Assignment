@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import BannerAd from "./BannerAd";
 
 const initialBoard = Array(9).fill(null);
 
@@ -22,10 +23,27 @@ function calculateWinner(squares) {
 	return null;
 }
 
-const Game = () => {
+const Game = ({ triggerAd }) => {
 	const [board, setBoard] = useState(initialBoard);
 	const [xIsNext, setXIsNext] = useState(true);
+	const [showAdPopup, setShowAdPopup] = useState(false);
+	const [showBannerAd, setShowBannerAd] = useState(false);
+	const [adProgress, setAdProgress] = useState(0);
+	const [showRewardPopup, setShowRewardPopup] = useState(false);
+	const [adKey, setAdKey] = useState(0);
+	const [coins, setCoins] = useState(0);
+	const rewardAmount = 50;
 	const winner = calculateWinner(board);
+
+		useEffect(() => {
+			let timer;
+			if (triggerAd) {
+				timer = setTimeout(() => {
+					setShowAdPopup(true);
+				}, 0);
+			}
+			return () => clearTimeout(timer);
+		}, [triggerAd]);
 
 	const handleClick = (i) => {
 		if (board[i] || winner) return;
@@ -38,6 +56,34 @@ const Game = () => {
 	const handleReset = () => {
 		setBoard(initialBoard);
 		setXIsNext(true);
+		setCoins(0);
+		setShowAdPopup(false);
+		setShowBannerAd(false);
+		setShowRewardPopup(false);
+		setAdProgress(0);
+	};
+
+	const handleWatchAd = () => {
+		setShowAdPopup(false);
+		setAdKey(prev => prev + 1);
+		setShowBannerAd(true);
+		setAdProgress(0);
+		let progress = 0;
+		const interval = setInterval(() => {
+			progress += 1;
+			setAdProgress(progress);
+			if (progress >= 10) {
+				clearInterval(interval);
+				setShowBannerAd(false);
+				setCoins(prev => prev + rewardAmount);
+				setShowRewardPopup(true);
+				setTimeout(() => setShowRewardPopup(false), 2000);
+			}
+		}, 1000);
+	};
+
+	const handleCancelAd = () => {
+		setShowAdPopup(false);
 	};
 
 	return (
@@ -57,6 +103,7 @@ const Game = () => {
 				>
 					Reset
 				</button>
+				<div className="mt-2 text-yellow-700 font-bold">Coins: {coins}</div>
 			</div>
 			<div className="grid grid-cols-3 gap-3 bg-white/60 p-6 rounded-2xl shadow-2xl">
 				{board.map((cell, i) => (
@@ -81,6 +128,42 @@ const Game = () => {
 					</button>
 				))}
 			</div>
+			{showAdPopup && (
+				<div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
+					<div className="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-xs flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md">
+						<span className="text-lg font-bold text-yellow-900 mb-2">Watch an ad to get rewards!</span>
+						<div className="flex gap-4 mt-4">
+							<button
+								className="px-4 py-2 rounded-md bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 text-white font-semibold shadow hover:scale-105 active:scale-95 transition-all duration-200"
+								onClick={handleWatchAd}
+							>Watch Ad</button>
+							<button
+								className="px-4 py-2 rounded-md bg-gray-300 text-gray-800 font-semibold shadow hover:scale-105 active:scale-95 transition-all duration-200"
+								onClick={handleCancelAd}
+							>Cancel</button>
+						</div>
+					</div>
+				</div>
+			)}
+			{showBannerAd && (
+				<div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
+					<div className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md min-w-[340px]">
+						<span className="text-lg font-bold text-yellow-900 mb-2">Ad is playing...</span>
+						<BannerAd key={adKey} />
+						<div className="w-full mt-4">
+							<div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+								<div className="h-full bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 animate-progress" style={{ width: `${adProgress * 10}%`, transition: 'width 0.5s' }}></div>
+							</div>
+							<div className="text-xs text-gray-600 mt-1 text-center">{10 - adProgress}s left</div>
+						</div>
+					</div>
+				</div>
+			)}
+			{showRewardPopup && (
+				<div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-green-300 text-green-900 px-8 py-4 rounded-xl shadow-xl z-[999] animate-bounce flex items-center gap-2">
+					<span className="font-bold text-lg">You won {rewardAmount} coins!</span>
+				</div>
+			)}
 		</div>
 	);
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import BannerAd from "./BannerAd";
 import { IoPersonSharp } from "react-icons/io5";
 import { BsCoin } from "react-icons/bs";
 import { FaPlay } from "react-icons/fa";
@@ -6,15 +7,22 @@ import { FiSettings } from "react-icons/fi";
 import { FaGift } from "react-icons/fa";
 
 import { useState } from "react";
-const Home = () => {
+const Home = ({ onPlay }) => {
   const [showAdPopup, setShowAdPopup] = useState(false);
+  const [showBannerAd, setShowBannerAd] = useState(false);
   const coins = 0;
+  // Use onPlay prop from App to start game
   const handlePlayClick = () => {
-    setShowAdPopup(true);
+    if (typeof onPlay === 'function') {
+      onPlay();
+    }
   };
   const handleWatchAd = () => {
     setShowAdPopup(false);
-    // Add logic to show ad if needed
+    setShowBannerAd(true);
+  };
+  const handleCloseBannerAd = () => {
+    setShowBannerAd(false);
   };
   const handleCancelAd = () => {
     setShowAdPopup(false);
@@ -96,7 +104,7 @@ const Home = () => {
       <div className="flex flex-col gap-4 mb-4 items-center w-full px-4 max-w-xs mx-auto justify-center self-center flex-1 z-10">
         <button
           className="max-w-[140px] w-full px-3 py-2 rounded-md bg-gradient-to-r from-yellow-400 via-sky-400 to-blue-500 text-white font-semibold text-base shadow-md hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center animate-button-pop"
-          onClick={handlePlayClick}
+          onClick={typeof onPlay === 'function' ? onPlay : handlePlayClick}
         >
           <FaPlay className="mr-1 text-lg animate-spin-slow" /> Play
         </button>
@@ -114,6 +122,15 @@ const Home = () => {
                   onClick={handleCancelAd}
                 >Cancel</button>
               </div>
+            </div>
+          </div>
+        )}
+        {showBannerAd && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md">
+              <span className="text-lg font-bold text-yellow-900 mb-2">Ad is playing...</span>
+              <BannerAd />
+              <button className="mt-4 px-4 py-2 rounded bg-yellow-400 text-white font-bold" onClick={handleCloseBannerAd}>Close Ad</button>
             </div>
           </div>
         )}
