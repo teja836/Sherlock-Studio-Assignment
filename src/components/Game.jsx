@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import BannerAd from "./BannerAd";
 
 const initialBoard = Array(9).fill(null);
 
@@ -30,7 +29,22 @@ const Game = ({ triggerAd }) => {
 	const [showBannerAd, setShowBannerAd] = useState(false);
 	const [adProgress, setAdProgress] = useState(0);
 	const [showRewardPopup, setShowRewardPopup] = useState(false);
-	const [adKey, setAdKey] = useState(0);
+		const [adKey, setAdKey] = useState(0);
+			const videoAds = [
+				// Games
+				"https://www.w3schools.com/html/mov_bbb.mp4",
+				// Tech
+				"https://www.w3schools.com/html/movie.mp4",
+				// Food
+				"https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+				// Sports
+				"https://filesamples.com/samples/video/mp4/sample_640x360.mp4",
+				// Advertising
+				"https://www.appsloveworld.com/wp-content/uploads/2018/10/640.mp4"
+			];
+				const [lastAdIndex, setLastAdIndex] = useState(null);
+				const [currentAdIndex, setCurrentAdIndex] = useState(null);
+				const [videoLoading, setVideoLoading] = useState(true);
 	const [coins, setCoins] = useState(0);
 	const rewardAmount = 50;
 	const winner = calculateWinner(board);
@@ -63,24 +77,31 @@ const Game = ({ triggerAd }) => {
 		setAdProgress(0);
 	};
 
-	const handleWatchAd = () => {
-		setShowAdPopup(false);
-		setAdKey(prev => prev + 1);
-		setShowBannerAd(true);
-		setAdProgress(0);
-		let progress = 0;
-		const interval = setInterval(() => {
-			progress += 1;
-			setAdProgress(progress);
-			if (progress >= 10) {
-				clearInterval(interval);
-				setShowBannerAd(false);
-				setCoins(prev => prev + rewardAmount);
-				setShowRewardPopup(true);
-				setTimeout(() => setShowRewardPopup(false), 2000);
-			}
-		}, 1000);
-	};
+			const handleWatchAd = () => {
+				setShowAdPopup(false);
+				let newIndex;
+				do {
+					newIndex = Math.floor(Math.random() * videoAds.length);
+				} while (newIndex === lastAdIndex && videoAds.length > 1);
+				setCurrentAdIndex(newIndex);
+				setLastAdIndex(newIndex);
+				setAdKey(prev => prev + 1);
+				setShowBannerAd(true);
+				setAdProgress(0);
+				setVideoLoading(true);
+				let progress = 0;
+				const interval = setInterval(() => {
+					progress += 1;
+					setAdProgress(progress);
+					if (progress >= 10) {
+						clearInterval(interval);
+						setShowBannerAd(false);
+						setCoins(prev => prev + rewardAmount);
+						setShowRewardPopup(true);
+						setTimeout(() => setShowRewardPopup(false), 2000);
+					}
+				}, 1000);
+			};
 
 	const handleCancelAd = () => {
 		setShowAdPopup(false);
@@ -145,20 +166,35 @@ const Game = ({ triggerAd }) => {
 					</div>
 				</div>
 			)}
-			{showBannerAd && (
-				<div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
-					<div className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md min-w-[340px]">
-						<span className="text-lg font-bold text-yellow-900 mb-2">Ad is playing...</span>
-						<BannerAd key={adKey} />
-						<div className="w-full mt-4">
-							<div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-								<div className="h-full bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 animate-progress" style={{ width: `${adProgress * 10}%`, transition: 'width 0.5s' }}></div>
-							</div>
-							<div className="text-xs text-gray-600 mt-1 text-center">{10 - adProgress}s left</div>
-						</div>
-					</div>
-				</div>
-			)}
+											{showBannerAd && currentAdIndex !== null && (
+												<div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
+													<div className="bg-white rounded-2xl shadow-2xl p-6 flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md min-w-[340px]">
+														<span className="text-lg font-bold text-yellow-900 mb-2">Video Ad is playing...</span>
+														<div className="relative">
+															{videoLoading && (
+																<div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10 rounded-xl">
+																	<span className="text-yellow-500 font-bold animate-pulse">Loading Ad...</span>
+																</div>
+															)}
+															<video
+																key={adKey}
+																src={videoAds[currentAdIndex]}
+																autoPlay
+																muted
+																controls={false}
+																onLoadedData={() => setVideoLoading(false)}
+																style={{ width: '320px', height: '180px', borderRadius: '1rem', boxShadow: '0 4px 16px #ffe06688' }}
+															/>
+														</div>
+														<div className="w-full mt-4">
+															<div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+																<div className="h-full bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 animate-progress" style={{ width: `${adProgress * 10}%`, transition: 'width 0.5s' }}></div>
+															</div>
+															<div className="text-xs text-gray-600 mt-1 text-center">{10 - adProgress}s left</div>
+														</div>
+													</div>
+												</div>
+											)}
 			{showRewardPopup && (
 				<div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-green-300 text-green-900 px-8 py-4 rounded-xl shadow-xl z-[999] animate-bounce flex items-center gap-2">
 					<span className="font-bold text-lg">You won {rewardAmount} coins!</span>
