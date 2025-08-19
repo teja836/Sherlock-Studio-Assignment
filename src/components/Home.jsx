@@ -1,42 +1,27 @@
-import React, { useState } from "react";
+import React from "react";
 import { IoPersonSharp } from "react-icons/io5";
 import { BsCoin } from "react-icons/bs";
 import { FaPlay } from "react-icons/fa";
 import { FiSettings } from "react-icons/fi";
 import { FaGift } from "react-icons/fa";
-import BannerAd from "./BannerAd";
 
+import { useState } from "react";
 const Home = () => {
-  const [showWinPopup, setShowWinPopup] = useState(false);
-  const [lastReward, setLastReward] = useState(0);
-  const [coins, setCoins] = useState(0);
-  const [showRewardedAd, setShowRewardedAd] = useState(false);
-  const [showWatchPopup, setShowWatchPopup] = useState(false);
-  const [currentAd, setCurrentAd] = useState(null);
-
-  const adVideos = [
-    { src: import.meta.env.BASE_URL + 'Ad1Video.mp4', reward: 50 },
-    { src: import.meta.env.BASE_URL + 'Ad2.mp4', reward: 70 },
-    
-  ];
-
+  const [showAdPopup, setShowAdPopup] = useState(false);
+  const coins = 0;
   const handlePlayClick = () => {
-    // Always show ad when Play is clicked
-    setShowWatchPopup(true);
+    setShowAdPopup(true);
   };
-
-  // ...existing code...
-
   const handleWatchAd = () => {
-    setShowWatchPopup(false);
-    setShowRewardedAd(true);
-    // Pick a random ad video and set its reward
-    const ad = adVideos[Math.floor(Math.random() * adVideos.length)];
-    setCurrentAd(ad);
+    setShowAdPopup(false);
+    // Add logic to show ad if needed
+  };
+  const handleCancelAd = () => {
+    setShowAdPopup(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-yellow-100 via-pink-100 to-blue-100 animate-fade-in justify-center relative overflow-hidden">
+  <div className="min-h-screen flex flex-col bg-gradient-to-br from-yellow-100 via-pink-100 to-blue-100 animate-fade-in justify-center relative overflow-hidden">
       {/* Animated floating coins background */}
       <div className="absolute inset-0 pointer-events-none z-0">
         {[...Array(8)].map((_, i) => (
@@ -64,27 +49,45 @@ const Home = () => {
       <div className="flex flex-row justify-between items-center w-full px-2 sm:px-4 pt-4 mb-6 z-10">
         {/* Player Profile Left - Small Card with Name & Score */}
         <div className="flex-1 flex justify-start">
-          <div className="flex items-center bg-white rounded-lg shadow px-2 py-1 space-x-2 w-32 sm:w-44">
-            <IoPersonSharp className="text-yellow-700 text-xl sm:text-2xl drop-shadow-lg" />
-            <div className="flex flex-col items-start">
-              <span className="text-xs sm:text-sm font-bold text-gray-800">Player Name</span>
-              <span className="text-xs text-gray-500">Lv 1</span>
-              <span className="text-xs sm:text-sm font-semibold text-blue-600">Score: 1640</span>
+          <div className="flex items-center backdrop-blur-md bg-white/30 border-2 border-yellow-300 rounded-xl shadow-2xl px-3 py-2 space-x-3 w-32 sm:w-40 player-card-glass relative">
+            <IoPersonSharp className="text-yellow-400 text-xl sm:text-2xl drop-shadow-2xl animate-player-glow" style={{ filter: 'drop-shadow(0 0 8px #ffe066)' }} />
+            <div className="flex flex-col items-start ml-1">
+              <span className="text-xs sm:text-sm font-bold text-yellow-900 drop-shadow">Player</span>
+              <span className="text-[10px] sm:text-xs font-semibold text-blue-600 drop-shadow">Score: 1640</span>
             </div>
+            <style>{`
+              .player-card-glass {
+                box-shadow: 0 4px 16px 0 rgba(255, 200, 0, 0.12), 0 1px 4px 0 rgba(0,0,0,0.08);
+                border-radius: 0.75rem;
+                border: 2px solid #ffe066;
+                background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+                transition: box-shadow 0.3s, border 0.3s;
+                min-width: 80px;
+                max-width: 120px;
+                padding: 0.25rem 0.5rem;
+              }
+              .player-card-glass:hover {
+                box-shadow: 0 8px 24px 0 #ffe06688, 0 1px 6px 0 #fff;
+                border: 2px solid #ffd700;
+              }
+              @keyframes player-glow {
+                0%,100% { filter: drop-shadow(0 0 6px #ffe06688); }
+                50% { filter: drop-shadow(0 0 12px #ffd700cc); }
+              }
+              .animate-player-glow {
+                animation: player-glow 1.6s ease-in-out infinite;
+              }
+            `}</style>
           </div>
         </div>
         {/* Rewards Right - Small Card */}
         <div className="flex-1 flex justify-end">
-          <div className="flex items-center bg-white rounded-lg shadow px-2 py-1 space-x-2 w-28 sm:w-36">
-            <BsCoin className="text-yellow-400 text-xl sm:text-2xl drop-shadow-lg animate-bounce" />
+          <div className="flex items-center backdrop-blur-md bg-white/30 border-2 border-yellow-300 rounded-xl shadow-2xl px-3 py-2 space-x-3 w-32 sm:w-40 coin-card-glass relative">
+            <BsCoin className="text-yellow-400 text-3xl sm:text-4xl drop-shadow-2xl animate-coin-rotate" style={{ filter: 'drop-shadow(0 0 12px #ffe066)' }} />
             <div className="flex flex-col items-start">
-              <span className="text-xs sm:text-sm font-bold text-yellow-900 animate-count">{coins}</span>
-              <span className="text-xs text-pink-600">Coins</span>
+              <span className="text-lg sm:text-xl font-extrabold text-yellow-900 animate-count-glass">{coins}</span>
+              <span className="text-xs text-pink-600 font-semibold tracking-wide">Coins</span>
             </div>
-            <button className="ml-1 p-1 rounded-full bg-gradient-to-r from-pink-400 via-yellow-400 to-blue-400 shadow hover:scale-105 transition-all"
-              onClick={() => setShowWatchPopup(true)}>
-              <FaGift className="text-white text-base animate-pulse" title="Claim Reward" />
-            </button>
           </div>
         </div>
       </div>
@@ -97,16 +100,20 @@ const Home = () => {
         >
           <FaPlay className="mr-1 text-lg animate-spin-slow" /> Play
         </button>
-        {showWatchPopup && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
-              <span className="text-lg text-gray-800 mb-4">Watch ads to get reward coins</span>
-              <button
-                className="px-4 py-2 rounded bg-blue-500 text-white font-bold shadow hover:bg-blue-600 transition-all"
-                onClick={handleWatchAd}
-              >
-                Watch
-              </button>
+        {showAdPopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 w-80 max-w-xs flex flex-col items-center border-2 border-yellow-300 backdrop-blur-md">
+              <span className="text-lg font-bold text-yellow-900 mb-2">Watch an ad to unlock game rewards</span>
+              <div className="flex gap-4 mt-4">
+                <button
+                  className="px-4 py-2 rounded-md bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400 text-white font-semibold shadow hover:scale-105 active:scale-95 transition-all duration-200"
+                  onClick={handleWatchAd}
+                >Watch Ad</button>
+                <button
+                  className="px-4 py-2 rounded-md bg-gray-300 text-gray-800 font-semibold shadow hover:scale-105 active:scale-95 transition-all duration-200"
+                  onClick={handleCancelAd}
+                >Cancel</button>
+              </div>
             </div>
           </div>
         )}
@@ -116,39 +123,17 @@ const Home = () => {
         <button className="max-w-[140px] w-full px-3 py-2 rounded-md bg-gradient-to-r from-pink-400 via-yellow-400 to-blue-400 text-white font-semibold text-base shadow-md hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center animate-button-pop">
           <FaGift className="mr-1 text-lg" /> Reward
         </button>
-        {showRewardedAd && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
-              <div className="w-64 h-40 flex items-center justify-center bg-gray-100 rounded mb-4">
-                {/* Show video ad instead of placeholder */}
-                <video src={currentAd?.src} controls autoPlay className="w-full h-full rounded bg-black" onEnded={() => {
-                  setShowRewardedAd(false);
-                  setCoins(c => c + (currentAd?.reward || 0));
-                  setLastReward(currentAd?.reward || 0);
-                  setShowWinPopup(true);
-                  setTimeout(() => setShowWinPopup(false), 2200);
-                }}>
-                  <source src={currentAd?.src} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-              <span className="text-base text-gray-700">Watching ad...</span>
-              <span className="text-green-700 font-bold mt-2">Reward: {currentAd?.reward || 0} coins</span>
-            </div>
-          </div>
-        )}
 
-        {showWinPopup && (
-          <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-green-300 text-green-900 px-8 py-4 rounded-xl shadow-xl z-[999] animate-bounce">
-            <span className="font-bold text-lg">You won {lastReward} coins!</span>
-          </div>
-        )}
-      </div>
-      {/* Banner Ad Card - More Down Below Buttons */}
-      <div className="w-full max-w-xl mx-auto px-4 mt-10 mb-10">
-        <BannerAd onReward={amount => setCoins(c => c + amount)} />
+  {/* Removed win popup and ad logic */}
       </div>
       <style>{`
+        @keyframes coin-rotate {
+          0% { transform: rotateY(0deg); }
+          100% { transform: rotateY(360deg); }
+        }
+        .animate-coin-rotate {
+          animation: coin-rotate 1.8s linear infinite;
+        }
         @keyframes fade-in {
           0% { opacity: 0; transform: scale(0.98); }
           100% { opacity: 1; transform: scale(1); }
